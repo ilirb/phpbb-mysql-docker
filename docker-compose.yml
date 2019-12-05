@@ -1,0 +1,53 @@
+version: '3'
+services:
+
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: phpbb
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql:/var/lib/mysql
+      # - /path/to/data/mysql:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  phpbb:
+    build: phpfpm
+    restart: unless-stopped
+    volumes:
+      - ${PHPBB_DIR:-.}/phpbb:/var/www/html
+    depends_on:
+      - db
+
+  nginx:
+    build: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ${PHPBB_DIR:-.}/phpbb:/var/www/html
+      # - ${PHPBB_DIR:-.}/.data/letsencrypt/etc:/etc/letsencrypt
+    depends_on:
+      - phpbb
+
+  # nginx-exporter:
+  #   image: nginx/nginx-prometheus-exporter:0.4.2
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9113:9113
+  #   environment:
+  #     - SCRAPE_URI=http://nginx:81/stub_status
+
+volumes:
+  mysql:
