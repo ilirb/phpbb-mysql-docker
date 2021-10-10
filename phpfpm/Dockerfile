@@ -1,4 +1,4 @@
-FROM php:7.2-fpm-alpine
+FROM php:8.0.11-fpm-alpine
 
 # RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -7,5 +7,5 @@ RUN apk add --no-cache \
     imagemagick \
     unzip \
     bzip2 \
-    && docker-php-ext-configure gd --with-gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd mysqli
